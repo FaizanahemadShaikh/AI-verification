@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Body
 from fastapi.responses import JSONResponse
 import shutil
 import os
@@ -7,8 +7,13 @@ import json
 import requests
 from pathlib import Path
 from typing import Optional
+from pydantic import BaseModel
 
 app = FastAPI(title="Waste Image Verification API")
+
+# Pydantic model for JSON requests
+class ImageUrlRequest(BaseModel):
+    image_url: str
 
 # Path to your existing script
 SCRIPT_PATH = Path(__file__).parent / "authenticate_image.py"
@@ -32,25 +37,37 @@ async def root():
     }
 
 @app.post("/analyze-image-url/")
-async def analyze_image_url(image_url: str = Form(...)):
+async def analyze_image_url(request: ImageUrlRequest = Body(...)):
     """
     Endpoint to analyze waste image from URL (e.g., Cloudinary).
-    Accepts: Image URL as form data
+    Accepts: JSON with image_url field
     Returns: JSON with authenticity, confidence_score, and waste_type
     """
+    image_url = request.image_url
+    
+    # Validate URL
+    if not image_url or not image_url.startswith(('http://', 'https://')):
+        raise HTTPException(status_code=400, detail="Invalid URL. Must start with http:// or https://")
+    
     # Download image from URL
     try:
         response = requests.get(image_url, timeout=30)
         response.raise_for_status()
         
+        # Check if it's actually an image
+        content_type = response.headers.get('content-type', '').lower()
+        if not content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail=f"URL does not point to an image. Content-Type: {content_type}")
+        
         # Determine file extension from URL or content type
-        content_type = response.headers.get('content-type', '')
         if 'jpeg' in content_type or 'jpg' in content_type:
             ext = '.jpg'
         elif 'png' in content_type:
             ext = '.png'
         elif 'webp' in content_type:
             ext = '.webp'
+        elif 'gif' in content_type:
+            ext = '.gif'
         else:
             ext = '.jpg'  # Default fallback
         
