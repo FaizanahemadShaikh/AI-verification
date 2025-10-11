@@ -37,13 +37,13 @@ async def root():
     }
 
 @app.post("/analyze-image-url/")
-async def analyze_image_url(request: ImageUrlRequest = Body(...)):
+async def analyze_image_url(payload: dict):
     """
     Endpoint to analyze waste image from URL (e.g., Cloudinary).
     Accepts: JSON with image_url field
     Returns: JSON with authenticity, confidence_score, and waste_type
     """
-    image_url = request.image_url
+    image_url = payload.get("image_url")
     
     # Validate URL
     if not image_url or not image_url.startswith(('http://', 'https://')):
