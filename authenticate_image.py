@@ -221,7 +221,11 @@ Examples:
         error_response = {
             "error": "Missing API key",
             "message": "Set DEFAULT_API_KEY in authenticate_image.py, or set GEMINI_API_KEY, or pass --api-key",
-            "help": "Get your API key from https://aistudio.google.com/apikey"
+            "help": "Get your API key from https://aistudio.google.com/apikey",
+            "debug": {
+                "env_var": os.getenv("GEMINI_API_KEY"),
+                "default_key": DEFAULT_API_KEY[:10] + "..." if DEFAULT_API_KEY else "None"
+            }
         }
         print(json.dumps(error_response, indent=2))
         sys.exit(2)

@@ -91,24 +91,34 @@ async def analyze_image_url(payload: dict):
             text=True,
             check=True
         )
-        output = result.stdout
+        output = result.stdout.strip()
+
+        # Debug: Log the raw output
+        print(f"Script output: {output}")
 
         # Parse JSON from your script
         try:
             json_output = json.loads(output)
-        except json.JSONDecodeError:
+            return json_output
+        except json.JSONDecodeError as e:
             return JSONResponse(
                 status_code=500,
-                content={"error": "Failed to parse JSON from Gemini script", "raw_output": output[:500]}
+                content={
+                    "error": "Failed to parse JSON from Gemini script", 
+                    "parse_error": str(e),
+                    "raw_output": output[:500]
+                }
             )
 
-        return json_output
-
     except subprocess.CalledProcessError as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Gemini analysis script failed", "details": e.stderr}
-        )
+        error_details = {
+            "error": "Gemini analysis script failed",
+            "return_code": e.returncode,
+            "stderr": e.stderr,
+            "stdout": e.stdout
+        }
+        print(f"Subprocess error: {error_details}")
+        return JSONResponse(status_code=500, content=error_details)
     finally:
         # Clean up downloaded file
         try:
@@ -140,24 +150,34 @@ async def analyze_image(file: UploadFile = File(...)):
             text=True,
             check=True
         )
-        output = result.stdout
+        output = result.stdout.strip()
+
+        # Debug: Log the raw output
+        print(f"Script output: {output}")
 
         # Parse JSON from your script
         try:
             json_output = json.loads(output)
-        except json.JSONDecodeError:
+            return json_output
+        except json.JSONDecodeError as e:
             return JSONResponse(
                 status_code=500,
-                content={"error": "Failed to parse JSON from Gemini script", "raw_output": output[:500]}
+                content={
+                    "error": "Failed to parse JSON from Gemini script", 
+                    "parse_error": str(e),
+                    "raw_output": output[:500]
+                }
             )
 
-        return json_output
-
     except subprocess.CalledProcessError as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Gemini analysis script failed", "details": e.stderr}
-        )
+        error_details = {
+            "error": "Gemini analysis script failed",
+            "return_code": e.returncode,
+            "stderr": e.stderr,
+            "stdout": e.stdout
+        }
+        print(f"Subprocess error: {error_details}")
+        return JSONResponse(status_code=500, content=error_details)
     finally:
         # Clean up uploaded file
         try:
