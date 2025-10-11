@@ -251,7 +251,6 @@ Examples:
     config = types.GenerateContentConfig(
         temperature=args.temperature,
         response_mime_type="application/json",
-        response_schema=WasteAnalysis,
     )
     
     # Send request to Gemini Vision API
