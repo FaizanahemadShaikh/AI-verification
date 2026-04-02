@@ -28,7 +28,7 @@ from google.genai import types
 
 # ---------- Default API Key (set here to avoid env var each run) ----------
 # Replace the placeholder below with your actual API key.
-DEFAULT_API_KEY = "AIzaSyCU3xyGiH_vqXwGRSw_6t77-lG__JlISxE"
+DEFAULT_API_KEY = "AIzaSyAVHnXMo7wmSGscyTo5GtKnTP1_fsXYm-s"
 
 
 # ---------- Type Definitions for Structured Output ----------
